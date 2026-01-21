@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clip - タスク & メモ</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Marked.js for Markdown parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- サイドバー -->
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <span class="logo">📎</span>
+      </div>
+      <ul class="nav-list">
+        <li class="nav-item active" data-view="tasks" title="タスク">
+          <span class="nav-icon">✓</span>
+        </li>
+        <li class="nav-item" data-view="notes" title="メモ">
+          <span class="nav-icon">📝</span>
+        </li>
+      </ul>
+      <div class="sidebar-footer">
+        <button class="btn-icon" id="toggle-ontop" title="最前面表示">📌</button>
+        <span class="shortcut-hint">Ctrl+Shift<br>+Space</span>
+      </div>
+    </nav>
+
+    <!-- メインコンテンツ -->
+    <main class="main-content">
+      <!-- タスクビュー -->
+      <section class="view" id="tasks-view">
+        <header class="view-header">
+          <h2>タスク</h2>
+          <button class="btn-primary" id="add-task-btn">
+            <span>+ 追加</span>
+          </button>
+        </header>
+
+        <div class="task-filters">
+          <button class="filter-btn active" data-filter="all">すべて</button>
+          <button class="filter-btn" data-filter="active">未完了</button>
+          <button class="filter-btn" data-filter="completed">完了</button>
+        </div>
+
+        <div class="task-list" id="task-list">
+        </div>
+      </section>
+
+      <!-- メモビュー -->
+      <section class="view hidden" id="notes-view">
+        <header class="view-header">
+          <h2>メモ</h2>
+          <button class="btn-primary" id="add-note-btn">
+            <span>+ 追加</span>
+          </button>
+        </header>
+
+        <div class="notes-container">
+          <div class="notes-list" id="notes-list">
+          </div>
+          <div class="note-editor hidden" id="note-editor">
+            <div class="note-editor-tabs">
+              <button class="tab-btn active" data-tab="edit">編集</button>
+              <button class="tab-btn" data-tab="preview">プレビュー</button>
+            </div>
+            <div class="note-editor-content">
+              <div class="note-edit-pane" id="note-edit-pane">
+                <input type="text" class="note-title-input" id="note-title" placeholder="# タイトル">
+                <textarea class="note-content-input" id="note-content" placeholder="Markdownで記述できます..."></textarea>
+              </div>
+              <div class="note-preview-pane hidden" id="note-preview-pane">
+                <div class="markdown-body" id="note-preview"></div>
+              </div>
+            </div>
+            <div class="note-actions">
+              <button class="btn-secondary" id="delete-note-btn">削除</button>
+              <div style="flex:1"></div>
+              <button class="btn-secondary" id="cancel-note-btn">キャンセル</button>
+              <button class="btn-primary" id="save-note-btn">保存</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- タスク追加モーダル -->
+  <div class="modal hidden" id="task-modal">
+    <div class="modal-content">
+      <h3>タスクを追加</h3>
+      <textarea class="input-field task-input-area" id="task-input" placeholder="タスクの内容（Markdown対応）..."></textarea>
+      <select class="select-field" id="task-priority">
+        <option value="medium">普通</option>
+        <option value="high">高</option>
+        <option value="low">低</option>
+      </select>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="cancel-task-btn">キャンセル</button>
+        <button class="btn-primary" id="submit-task-btn">追加</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TypeScript メインモジュール -->
+  <script type="module" src="./main.ts"></script>
+</body>
+
+</html>

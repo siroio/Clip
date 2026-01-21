@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clip - クイック入力</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            background: transparent !important;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        body {
+            font-family: 'gg sans', 'Noto Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        .palette-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            background: transparent;
+        }
+
+        .palette-input-wrapper {
+            width: 100%;
+            background: #1e1f22;
+            border: 1px solid rgba(88, 101, 242, 0.6);
+            border-radius: 8px;
+            box-shadow:
+                0 8px 24px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.04);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 12px;
+        }
+
+        .palette-prefix {
+            font-size: 18px;
+            color: #5865f2;
+            font-weight: 500;
+        }
+
+        .palette-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            color: #f2f3f5;
+            padding: 14px 0;
+            caret-color: #5865f2;
+        }
+
+        .palette-input::placeholder {
+            color: #80848e;
+        }
+
+        .palette-hint {
+            font-size: 12px;
+            color: #80848e;
+            white-space: nowrap;
+        }
+
+        .palette-hint kbd {
+            background: #313338;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: inherit;
+            margin: 0 2px;
+            color: #b5bac1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="palette-container">
+        <div class="palette-input-wrapper">
+            <span class="palette-prefix">></span>
+            <input type="text" class="palette-input" id="palette-input" placeholder="t: タスク / m: メモ を入力..." autofocus>
+            <span class="palette-hint">
+                <kbd>Enter</kbd> 追加 <kbd>Esc</kbd> 閉じる
+            </span>
+        </div>
+    </div>
+
+    <script>
+        const { invoke } = window.__TAURI__.core;
+        const input = document.getElementById('palette-input');
+
+        // フォーカスを維持
+        input.focus();
+
+        // Enterキーで追加
+        input.addEventListener('keydown', async (e) => {
+            if (e.key === 'Enter') {
+                const text = input.value.trim();
+                if (!text) return;
+
+                try {
+                    if (text.startsWith('m:') || text.startsWith('m：')) {
+                        // メモ追加
+                        const content = text.slice(2).trim();
+                        if (content) {
+                            await invoke('add_note', {
+                                title: content.slice(0, 30),
+                                content: content
+                            });
+                        }
+                    } else {
+                        // タスク追加
+                        let taskText = text;
+                        if (text.startsWith('t:') || text.startsWith('t：')) {
+                            taskText = text.slice(2).trim();
+                        }
+                        if (taskText) {
+                            await invoke('add_task', {
+                                text: taskText,
+                                priority: 'medium'
+                            });
+                        }
+                    }
+
+                    input.value = '';
+                    await invoke('hide_palette');
+                } catch (err) {
+                    console.error('Error:', err);
+                }
+            } else if (e.key === 'Escape') {
+                input.value = '';
+                await invoke('hide_palette');
+            }
+        });
+
+        // ウィンドウがフォーカスを受けたときに入力にフォーカス
+        window.addEventListener('focus', () => {
+            input.focus();
+        });
+    </script>
+</body>
+
+</html>
