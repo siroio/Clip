@@ -5,46 +5,55 @@
 import { invoke } from './tauri';
 
 export interface ClipConfig {
+    // 外観
     theme: 'dark' | 'light';
     accentColor: string;
     fontSize: number;
-    autoSave: boolean;
-    autoSaveInterval: number;
-    syncInterval: number;
+
+    // エディタ
     editorFontFamily: string;
     editorLineHeight: number;
     spellCheck: boolean;
     autocomplete: boolean;
+
+    // 動作
+    autoSave: boolean;
+    autoSaveInterval: number;
+    syncInterval: number;
+    startMinimized: boolean;
+    alwaysOnTop: boolean;
+
+    // データ保存
+    dataPath: string;  // 空文字列の場合はデフォルト（%LOCALAPPDATA%/Clip）
+
+    // ショートカット（Rust側で適用）
     shortcuts: {
         palette: string;
         mainWindow: string;
-        newTask: string;
-        newNote: string;
     };
-    startMinimized: boolean;
-    alwaysOnTop: boolean;
+
+    // その他
     language: 'ja' | 'en';
 }
 
-const defaultConfig: ClipConfig = {
+export const defaultConfig: ClipConfig = {
     theme: 'dark',
     accentColor: '#5865f2',
     fontSize: 14,
-    autoSave: true,
-    autoSaveInterval: 5000,
-    syncInterval: 3000,
     editorFontFamily: 'Consolas, Monaco, monospace',
     editorLineHeight: 1.6,
     spellCheck: false,
     autocomplete: false,
+    autoSave: true,
+    autoSaveInterval: 5000,
+    syncInterval: 3000,
+    startMinimized: false,
+    alwaysOnTop: false,
+    dataPath: '',
     shortcuts: {
         palette: 'Ctrl+Shift+Space',
         mainWindow: 'Ctrl+Shift+M',
-        newTask: 'Ctrl+N',
-        newNote: 'Ctrl+Shift+N',
     },
-    startMinimized: false,
-    alwaysOnTop: false,
     language: 'ja',
 };
 

@@ -2,16 +2,56 @@
 
 use std::fs;
 use std::path::PathBuf;
+use std::sync::OnceLock;
+use serde::Deserialize;
 use crate::models::{Task, Note};
+
+// ===========================================
+// 設定キャッシュ
+// ===========================================
+
+#[derive(Deserialize, Default)]
+struct ConfigCache {
+    #[serde(rename = "dataPath", default)]
+    data_path: String,
+}
+
+static CONFIG_CACHE: OnceLock<ConfigCache> = OnceLock::new();
+
+fn get_config_cache() -> &'static ConfigCache {
+    CONFIG_CACHE.get_or_init(|| {
+        let config_path = get_default_config_path();
+        if let Ok(content) = fs::read_to_string(&config_path) {
+            serde_json::from_str(&content).unwrap_or_default()
+        } else {
+            ConfigCache::default()
+        }
+    })
+}
+
+/// デフォルトの設定ファイルパスを取得
+fn get_default_config_path() -> PathBuf {
+    let mut path = dirs::data_local_dir().unwrap_or_else(|| PathBuf::from("."));
+    path.push("Clip");
+    fs::create_dir_all(&path).ok();
+    path.push("config.json");
+    path
+}
 
 // ===========================================
 // ディレクトリ
 // ===========================================
 
-/// データディレクトリを取得
+/// データディレクトリを取得（設定のdataPathがあればそちらを使用）
 pub fn get_data_dir() -> PathBuf {
-    let mut path = dirs::data_local_dir().unwrap_or_else(|| PathBuf::from("."));
-    path.push("Clip");
+    let config = get_config_cache();
+    let path = if !config.data_path.is_empty() {
+        PathBuf::from(&config.data_path)
+    } else {
+        let mut p = dirs::data_local_dir().unwrap_or_else(|| PathBuf::from("."));
+        p.push("Clip");
+        p
+    };
     fs::create_dir_all(&path).ok();
     path
 }
@@ -34,9 +74,7 @@ pub fn get_notes_dir() -> PathBuf {
 
 /// 設定ファイルパスを取得
 pub fn get_config_path() -> PathBuf {
-    let mut path = get_data_dir();
-    path.push("config.json");
-    path
+    get_default_config_path()
 }
 
 // ===========================================
